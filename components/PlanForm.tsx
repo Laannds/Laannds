@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import type { PlanInput, Plan } from '@/types'
 import PlanCard from './PlanCard'
@@ -30,6 +30,66 @@ const MOOD_OPTIONS = [
   { value: 'social', label: 'Social', emoji: '🎉' },
 ]
 
+const BUDGET_PRESETS = [10, 20, 50, 100]
+
+const LOADING_MESSAGES = [
+  'Analizando tu ciudad...',
+  'Buscando las mejores actividades...',
+  'Calculando costes y tiempos...',
+  'Añadiendo los mejores consejos locales...',
+  'Preparando tus planes personalizados...',
+]
+
+function LoadingState() {
+  const [msgIndex, setMsgIndex] = useState(0)
+  const [progress, setProgress] = useState(0)
+
+  useEffect(() => {
+    const msgInterval = setInterval(() => {
+      setMsgIndex((i) => (i + 1) % LOADING_MESSAGES.length)
+    }, 1800)
+
+    const progressInterval = setInterval(() => {
+      setProgress((p) => {
+        if (p >= 88) return p
+        const increment = p < 40 ? 8 : p < 70 ? 5 : 2
+        return Math.min(p + increment, 88)
+      })
+    }, 400)
+
+    return () => {
+      clearInterval(msgInterval)
+      clearInterval(progressInterval)
+    }
+  }, [])
+
+  return (
+    <div className="flex flex-col items-center justify-center py-16 gap-6">
+      <div className="relative">
+        <div className="text-5xl animate-pulse-slow">🎯</div>
+        <div className="absolute -bottom-2 -right-2 w-5 h-5 border-3 border-orange-100 border-t-orange-500 rounded-full animate-spin border-[3px]" />
+      </div>
+
+      <div className="text-center space-y-2">
+        <p className="font-semibold text-gray-900 text-lg">Generando tus planes...</p>
+        <p className="text-gray-500 text-sm min-h-[20px] transition-all duration-300">
+          {LOADING_MESSAGES[msgIndex]}
+        </p>
+      </div>
+
+      <div className="w-64">
+        <div className="bg-gray-100 rounded-full h-2 overflow-hidden">
+          <div
+            className="bg-gradient-to-r from-orange-400 to-orange-500 h-2 rounded-full transition-all duration-500 ease-out"
+            style={{ width: `${progress}%` }}
+          />
+        </div>
+        <p className="text-xs text-gray-400 text-center mt-1.5">Puede tardar hasta 10 segundos</p>
+      </div>
+    </div>
+  )
+}
+
 export default function PlanForm() {
   const router = useRouter()
   const [step, setStep] = useState<'form' | 'loading' | 'results'>('form')
@@ -49,7 +109,7 @@ export default function PlanForm() {
       ...prev,
       mood: prev.mood?.includes(mood)
         ? prev.mood.filter((m) => m !== mood)
-        : [...(prev.mood || []), mood],
+        : [...(prev.mood ?? []), mood],
     }))
   }
 
@@ -71,7 +131,7 @@ export default function PlanForm() {
 
       if (res.status === 429) {
         setError(
-          'Has alcanzado el límite diario de 3 planes. Actualiza a Pro para planes ilimitados.'
+          'Has alcanzado el límite diario de 3 generaciones. Actualiza a Pro para planes ilimitados.'
         )
         setStep('form')
         return
@@ -85,7 +145,7 @@ export default function PlanForm() {
       setPlans(data.plans)
       setStep('results')
     } catch {
-      setError('Error generando planes. Por favor, inténtalo de nuevo.')
+      setError('Algo salió mal. Por favor, inténtalo de nuevo.')
       setStep('form')
     }
   }
@@ -99,30 +159,16 @@ export default function PlanForm() {
     await doGenerate()
   }
 
-  if (step === 'loading') {
-    return (
-      <div className="flex flex-col items-center justify-center py-20 gap-6">
-        <div className="relative">
-          <div className="w-16 h-16 border-4 border-orange-100 border-t-orange-500 rounded-full animate-spin" />
-        </div>
-        <div className="text-center">
-          <p className="font-semibold text-gray-900 text-lg">Generando tus planes...</p>
-          <p className="text-gray-500 text-sm mt-1">
-            La IA está pensando en las mejores opciones para ti
-          </p>
-        </div>
-      </div>
-    )
-  }
+  if (step === 'loading') return <LoadingState />
 
   if (step === 'results') {
     return (
-      <div className="space-y-6">
-        <div className="flex items-center justify-between">
+      <div className="space-y-6 animate-fade-in">
+        <div className="flex items-start justify-between gap-4 flex-wrap">
           <div>
-            <h2 className="text-2xl font-bold text-gray-900">Tus planes para hoy</h2>
+            <h2 className="text-2xl font-bold text-gray-900">Tus planes para hoy ✨</h2>
             <p className="text-gray-500 text-sm mt-1">
-              {input.location} · {input.time}h · {input.budget}€
+              📍 {input.location} &nbsp;·&nbsp; ⏱ {input.time}h &nbsp;·&nbsp; 💰 {input.budget}€
             </p>
           </div>
           <button onClick={() => setStep('form')} className="btn-secondary text-sm py-2 px-4">
@@ -130,20 +176,20 @@ export default function PlanForm() {
           </button>
         </div>
 
-        <div className="grid gap-4 sm:grid-cols-1 lg:grid-cols-3">
+        <div className="grid gap-4 md:grid-cols-3">
           {plans.map((plan, i) => (
             <PlanCard key={plan.id} plan={plan} index={i} />
           ))}
         </div>
 
-        <div className="text-center pt-4">
+        <div className="text-center pt-2">
           <p className="text-sm text-gray-500">
             ¿No te convence ninguno?{' '}
             <button
               onClick={() => void doGenerate()}
-              className="text-orange-500 font-semibold hover:text-orange-600"
+              className="text-orange-500 font-semibold hover:text-orange-600 transition-colors"
             >
-              Regenerar planes
+              Regenerar planes →
             </button>
           </p>
         </div>
@@ -154,8 +200,9 @@ export default function PlanForm() {
   return (
     <form onSubmit={(e) => void handleSubmit(e)} className="space-y-6">
       {error && (
-        <div className="bg-red-50 border border-red-200 rounded-xl p-4 text-sm text-red-700">
-          {error}
+        <div className="bg-red-50 border border-red-200 rounded-xl p-4 text-sm text-red-700 flex items-start gap-2">
+          <span className="flex-shrink-0 mt-0.5">⚠️</span>
+          <span>{error}</span>
         </div>
       )}
 
@@ -177,6 +224,22 @@ export default function PlanForm() {
             />
             <span className="absolute right-3 top-3 text-gray-400 font-medium">€</span>
           </div>
+          <div className="flex gap-1.5">
+            {BUDGET_PRESETS.map((preset) => (
+              <button
+                key={preset}
+                type="button"
+                onClick={() => setInput((p) => ({ ...p, budget: preset }))}
+                className={`text-xs px-2.5 py-1 rounded-lg font-medium border transition-all ${
+                  input.budget === preset
+                    ? 'bg-orange-100 text-orange-700 border-orange-300'
+                    : 'bg-gray-50 text-gray-500 border-gray-200 hover:border-orange-200'
+                }`}
+              >
+                {preset}€
+              </button>
+            ))}
+          </div>
         </div>
 
         <div className="space-y-2">
@@ -189,6 +252,7 @@ export default function PlanForm() {
             placeholder="Madrid, Barcelona, Sevilla..."
             required
           />
+          <p className="text-xs text-gray-400">Cuanto más específico, mejores planes</p>
         </div>
       </div>
 
@@ -203,7 +267,7 @@ export default function PlanForm() {
               onClick={() => setInput((p) => ({ ...p, time: opt.value }))}
               className={`py-2 px-3 rounded-xl text-sm font-medium border transition-all ${
                 input.time === opt.value
-                  ? 'bg-orange-500 text-white border-orange-500'
+                  ? 'bg-orange-500 text-white border-orange-500 shadow-sm'
                   : 'bg-white text-gray-600 border-gray-200 hover:border-orange-300'
               }`}
             >
@@ -226,7 +290,7 @@ export default function PlanForm() {
               }
               className={`py-3 px-4 rounded-xl text-sm font-medium border transition-all flex items-center gap-2 justify-center ${
                 input.companions === opt.value
-                  ? 'bg-orange-500 text-white border-orange-500'
+                  ? 'bg-orange-500 text-white border-orange-500 shadow-sm'
                   : 'bg-white text-gray-600 border-gray-200 hover:border-orange-300'
               }`}
             >
@@ -262,8 +326,12 @@ export default function PlanForm() {
       </div>
 
       <button type="submit" className="w-full btn-primary py-4 text-base">
-        ✨ Generar mis planes →
+        ✨ Generar mis 3 planes →
       </button>
+
+      <p className="text-center text-xs text-gray-400">
+        Cada generación usa inteligencia artificial · Resultados en ~5-10 segundos
+      </p>
     </form>
   )
 }
