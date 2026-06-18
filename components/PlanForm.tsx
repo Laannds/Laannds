@@ -2,8 +2,19 @@
 
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
+import dynamic from 'next/dynamic'
 import type { PlanInput, Plan } from '@/types'
 import PlanCard from './PlanCard'
+
+const ExportPDFButton = dynamic(() => import('./ExportPDFButton'), {
+  ssr: false,
+  loading: () => (
+    <button disabled className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold border border-gray-200 bg-gray-50 text-gray-400 cursor-wait">
+      <div className="w-4 h-4 border-2 border-gray-200 border-t-gray-400 rounded-full animate-spin flex-shrink-0" />
+      <span>Cargando...</span>
+    </button>
+  ),
+})
 
 const TIME_OPTIONS = [
   { value: 1, label: '1 hora' },
@@ -171,9 +182,12 @@ export default function PlanForm() {
               📍 {input.location} &nbsp;·&nbsp; ⏱ {input.time}h &nbsp;·&nbsp; 💰 {input.budget}€
             </p>
           </div>
-          <button onClick={() => setStep('form')} className="btn-secondary text-sm py-2 px-4">
-            ← Nueva búsqueda
-          </button>
+          <div className="flex items-center gap-2 flex-wrap">
+            <ExportPDFButton plans={plans} input={input} />
+            <button onClick={() => setStep('form')} className="btn-secondary text-sm py-2 px-4">
+              ← Nueva búsqueda
+            </button>
+          </div>
         </div>
 
         <div className="grid gap-4 md:grid-cols-3">
