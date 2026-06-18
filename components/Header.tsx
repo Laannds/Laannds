@@ -9,6 +9,7 @@ export default function Header() {
   const [user, setUser] = useState<User | null>(null)
   const [mounted, setMounted] = useState(false)
   const [scrolled, setScrolled] = useState(false)
+  const [menuOpen, setMenuOpen] = useState(false)
 
   useEffect(() => {
     setMounted(true)
@@ -45,20 +46,21 @@ export default function Header() {
     >
       <div className="max-w-6xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
         {/* Logo */}
-        <Link
-          href="/"
-          className="flex items-center gap-2.5 group"
-        >
+        <Link href="/" className="flex items-center gap-2.5 group">
           <div className="w-8 h-8 bg-orange-500 rounded-xl flex items-center justify-center shadow-sm group-hover:shadow-orange transition-shadow duration-200">
-            <span className="text-white text-base">🎯</span>
+            <svg className="w-4 h-4 text-white" viewBox="0 0 16 16" fill="none">
+              <circle cx="8" cy="8" r="6.5" stroke="currentColor" strokeWidth="1.5" />
+              <circle cx="8" cy="8" r="3" stroke="currentColor" strokeWidth="1.5" />
+              <circle cx="8" cy="8" r="0.75" fill="currentColor" />
+            </svg>
           </div>
           <span className="font-bold text-gray-950 text-[15px] tracking-tight">
             ¿Qué hago hoy?
           </span>
         </Link>
 
-        {/* Nav */}
-        <nav className="flex items-center gap-1">
+        {/* Desktop nav */}
+        <nav className="hidden sm:flex items-center gap-1">
           {mounted && user ? (
             <>
               <Link href="/generar" className="btn-primary text-sm py-2 px-4 rounded-xl">
@@ -82,7 +84,72 @@ export default function Header() {
             </>
           )}
         </nav>
+
+        {/* Mobile: primary CTA + hamburger */}
+        <div className="flex sm:hidden items-center gap-2">
+          {mounted && user ? (
+            <Link href="/generar" className="btn-primary text-sm py-2 px-3 rounded-xl">
+              Generar
+            </Link>
+          ) : (
+            <Link href="/register" className="btn-primary text-sm py-2 px-3 rounded-xl">
+              Empezar
+            </Link>
+          )}
+          <button
+            onClick={() => setMenuOpen((o) => !o)}
+            aria-label="Abrir menú"
+            className="w-9 h-9 flex flex-col items-center justify-center gap-[5px] rounded-xl hover:bg-gray-100 transition-colors"
+          >
+            <span
+              className={`block w-5 h-[1.5px] bg-gray-700 rounded-full transition-all duration-200 origin-center ${
+                menuOpen ? 'translate-y-[6.5px] rotate-45' : ''
+              }`}
+            />
+            <span
+              className={`block w-5 h-[1.5px] bg-gray-700 rounded-full transition-all duration-200 ${
+                menuOpen ? 'opacity-0 scale-x-0' : ''
+              }`}
+            />
+            <span
+              className={`block w-5 h-[1.5px] bg-gray-700 rounded-full transition-all duration-200 origin-center ${
+                menuOpen ? '-translate-y-[6.5px] -rotate-45' : ''
+              }`}
+            />
+          </button>
+        </div>
       </div>
+
+      {/* Mobile dropdown */}
+      {menuOpen && (
+        <div className="sm:hidden border-b border-gray-100 bg-white/95 backdrop-blur-xl px-4 py-2 flex flex-col">
+          {mounted && user ? (
+            <>
+              <Link
+                href="/dashboard"
+                onClick={() => setMenuOpen(false)}
+                className="btn-ghost text-sm justify-start"
+              >
+                Mis planes
+              </Link>
+              <button
+                onClick={() => { setMenuOpen(false); void handleSignOut() }}
+                className="btn-ghost text-sm justify-start text-left"
+              >
+                Cerrar sesión
+              </button>
+            </>
+          ) : (
+            <Link
+              href="/login"
+              onClick={() => setMenuOpen(false)}
+              className="btn-ghost text-sm justify-start"
+            >
+              Iniciar sesión
+            </Link>
+          )}
+        </div>
+      )}
     </header>
   )
 }

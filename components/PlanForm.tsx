@@ -26,19 +26,39 @@ const TIME_OPTIONS = [
 ]
 
 const COMPANION_OPTIONS = [
-  { value: 'solo', label: 'Solo/a', emoji: '🧍' },
-  { value: 'pareja', label: 'En pareja', emoji: '👫' },
-  { value: 'amigos', label: 'Con amigos', emoji: '👥' },
-  { value: 'familia', label: 'Con familia', emoji: '👨‍👩‍👧' },
+  { value: 'solo', label: 'Solo/a' },
+  { value: 'pareja', label: 'En pareja' },
+  { value: 'amigos', label: 'Con amigos' },
+  { value: 'familia', label: 'Con familia' },
+]
+
+const OCCASION_OPTIONS = [
+  { value: 'normal', label: 'Día normal' },
+  { value: 'primera-cita', label: 'Primera cita' },
+  { value: 'cumpleanos', label: 'Cumpleaños' },
+  { value: 'con-ninos', label: 'Con niños' },
+  { value: 'turista', label: 'Turismo' },
+]
+
+const ENVIRONMENT_OPTIONS = [
+  { value: 'cualquiera', label: 'Indiferente' },
+  { value: 'exterior', label: 'Exterior' },
+  { value: 'interior', label: 'Interior' },
+]
+
+const TRANSPORT_OPTIONS = [
+  { value: 'pie', label: 'A pie' },
+  { value: 'publico', label: 'Transporte público' },
+  { value: 'coche', label: 'Con coche' },
 ]
 
 const MOOD_OPTIONS = [
-  { value: 'activo', label: 'Activo', emoji: '⚡' },
-  { value: 'tranquilo', label: 'Tranquilo', emoji: '😌' },
-  { value: 'cultural', label: 'Cultural', emoji: '🎨' },
-  { value: 'gastronómico', label: 'Gastronómico', emoji: '🍽️' },
-  { value: 'naturaleza', label: 'Naturaleza', emoji: '🌿' },
-  { value: 'social', label: 'Social', emoji: '🎉' },
+  { value: 'activo', label: 'Activo' },
+  { value: 'tranquilo', label: 'Tranquilo' },
+  { value: 'cultural', label: 'Cultural' },
+  { value: 'gastronómico', label: 'Gastronómico' },
+  { value: 'naturaleza', label: 'Naturaleza' },
+  { value: 'social', label: 'Social' },
 ]
 
 const BUDGET_PRESETS = [10, 20, 50, 100]
@@ -77,8 +97,14 @@ function LoadingState() {
   return (
     <div className="flex flex-col items-center justify-center py-16 gap-6">
       <div className="relative">
-        <div className="text-5xl animate-pulse-slow">🎯</div>
-        <div className="absolute -bottom-2 -right-2 w-5 h-5 border-3 border-orange-100 border-t-orange-500 rounded-full animate-spin border-[3px]" />
+        <div className="w-14 h-14 bg-orange-50 rounded-2xl flex items-center justify-center">
+          <svg className="w-7 h-7 text-orange-500 animate-pulse-slow" viewBox="0 0 24 24" fill="none">
+            <circle cx="12" cy="12" r="9.5" stroke="currentColor" strokeWidth="1.5" />
+            <circle cx="12" cy="12" r="4.5" stroke="currentColor" strokeWidth="1.5" />
+            <circle cx="12" cy="12" r="1.5" fill="currentColor" />
+          </svg>
+        </div>
+        <div className="absolute -bottom-1 -right-1 w-5 h-5 border-[3px] border-orange-100 border-t-orange-500 rounded-full animate-spin" />
       </div>
 
       <div className="text-center space-y-2">
@@ -110,8 +136,12 @@ export default function PlanForm() {
   const [input, setInput] = useState<PlanInput>({
     budget: 20,
     location: '',
+    neighborhood: '',
     time: 2,
     companions: 'solo',
+    occasion: 'normal',
+    environment: 'cualquiera',
+    transport: 'pie',
     mood: [],
   })
 
@@ -177,15 +207,17 @@ export default function PlanForm() {
       <div className="space-y-6 animate-fade-in">
         <div className="flex items-start justify-between gap-4 flex-wrap">
           <div>
-            <h2 className="text-2xl font-bold text-gray-900">Tus planes para hoy ✨</h2>
+            <h2 className="text-2xl font-bold text-gray-900">Tus planes para hoy</h2>
             <p className="text-gray-500 text-sm mt-1">
-              📍 {input.location} &nbsp;·&nbsp; ⏱ {input.time}h &nbsp;·&nbsp; 💰 {input.budget}€
+              {input.location}
+              {input.neighborhood ? ` · ${input.neighborhood}` : ''}
+              {' '}&nbsp;·&nbsp; {input.time}h &nbsp;·&nbsp; {input.budget}€
             </p>
           </div>
           <div className="flex items-center gap-2 flex-wrap">
             <ExportPDFButton plans={plans} input={input} />
             <button onClick={() => setStep('form')} className="btn-secondary text-sm py-2 px-4">
-              ← Nueva búsqueda
+              Nueva búsqueda
             </button>
           </div>
         </div>
@@ -215,7 +247,10 @@ export default function PlanForm() {
     <form onSubmit={(e) => void handleSubmit(e)} className="space-y-6">
       {error && (
         <div className="bg-red-50 border border-red-200 rounded-xl p-4 text-sm text-red-700 flex items-start gap-2">
-          <span className="flex-shrink-0 mt-0.5">⚠️</span>
+          <svg className="w-4 h-4 flex-shrink-0 mt-0.5" viewBox="0 0 16 16" fill="none">
+            <circle cx="8" cy="8" r="7" stroke="currentColor" strokeWidth="1.5" />
+            <path d="M8 5v3.5M8 11v.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+          </svg>
           <span>{error}</span>
         </div>
       )}
@@ -224,7 +259,7 @@ export default function PlanForm() {
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div className="space-y-2">
           <label className="block text-sm font-semibold text-gray-700">
-            💰 Presupuesto máximo
+            Presupuesto máximo
           </label>
           <div className="relative">
             <input
@@ -257,7 +292,7 @@ export default function PlanForm() {
         </div>
 
         <div className="space-y-2">
-          <label className="block text-sm font-semibold text-gray-700">📍 Ciudad o lugar</label>
+          <label className="block text-sm font-semibold text-gray-700">Ciudad o lugar</label>
           <input
             type="text"
             value={input.location}
@@ -266,13 +301,19 @@ export default function PlanForm() {
             placeholder="Madrid, Barcelona, Sevilla..."
             required
           />
-          <p className="text-xs text-gray-400">Cuanto más específico, mejores planes</p>
+          <input
+            type="text"
+            value={input.neighborhood ?? ''}
+            onChange={(e) => setInput((p) => ({ ...p, neighborhood: e.target.value }))}
+            className="input-field"
+            placeholder="Zona o barrio concreto (opcional)"
+          />
         </div>
       </div>
 
       {/* Time */}
       <div className="space-y-2">
-        <label className="block text-sm font-semibold text-gray-700">⏱ Tiempo disponible</label>
+        <label className="block text-sm font-semibold text-gray-700">Tiempo disponible</label>
         <div className="grid grid-cols-3 sm:grid-cols-6 gap-2">
           {TIME_OPTIONS.map((opt) => (
             <button
@@ -293,7 +334,7 @@ export default function PlanForm() {
 
       {/* Companions */}
       <div className="space-y-2">
-        <label className="block text-sm font-semibold text-gray-700">👥 ¿Con quién vas?</label>
+        <label className="block text-sm font-semibold text-gray-700">Con quién vas</label>
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
           {COMPANION_OPTIONS.map((opt) => (
             <button
@@ -302,23 +343,92 @@ export default function PlanForm() {
               onClick={() =>
                 setInput((p) => ({ ...p, companions: opt.value as PlanInput['companions'] }))
               }
-              className={`py-3 px-4 rounded-xl text-sm font-medium border transition-all flex items-center gap-2 justify-center ${
+              className={`py-2.5 px-4 rounded-xl text-sm font-medium border transition-all ${
                 input.companions === opt.value
                   ? 'bg-orange-500 text-white border-orange-500 shadow-sm'
                   : 'bg-white text-gray-600 border-gray-200 hover:border-orange-300'
               }`}
             >
-              <span>{opt.emoji}</span>
-              <span>{opt.label}</span>
+              {opt.label}
             </button>
           ))}
+        </div>
+      </div>
+
+      {/* Occasion */}
+      <div className="space-y-2">
+        <label className="block text-sm font-semibold text-gray-700">Ocasión</label>
+        <div className="flex flex-wrap gap-2">
+          {OCCASION_OPTIONS.map((opt) => (
+            <button
+              key={opt.value}
+              type="button"
+              onClick={() =>
+                setInput((p) => ({ ...p, occasion: opt.value as PlanInput['occasion'] }))
+              }
+              className={`py-2 px-4 rounded-xl text-sm font-medium border transition-all ${
+                input.occasion === opt.value
+                  ? 'bg-orange-500 text-white border-orange-500 shadow-sm'
+                  : 'bg-white text-gray-600 border-gray-200 hover:border-orange-300'
+              }`}
+            >
+              {opt.label}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Environment + Transport */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div className="space-y-2">
+          <label className="block text-sm font-semibold text-gray-700">Entorno preferido</label>
+          <div className="flex gap-2">
+            {ENVIRONMENT_OPTIONS.map((opt) => (
+              <button
+                key={opt.value}
+                type="button"
+                onClick={() =>
+                  setInput((p) => ({ ...p, environment: opt.value as PlanInput['environment'] }))
+                }
+                className={`flex-1 py-2 px-3 rounded-xl text-sm font-medium border transition-all ${
+                  input.environment === opt.value
+                    ? 'bg-orange-500 text-white border-orange-500 shadow-sm'
+                    : 'bg-white text-gray-600 border-gray-200 hover:border-orange-300'
+                }`}
+              >
+                {opt.label}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <div className="space-y-2">
+          <label className="block text-sm font-semibold text-gray-700">Transporte</label>
+          <div className="flex gap-2">
+            {TRANSPORT_OPTIONS.map((opt) => (
+              <button
+                key={opt.value}
+                type="button"
+                onClick={() =>
+                  setInput((p) => ({ ...p, transport: opt.value as PlanInput['transport'] }))
+                }
+                className={`flex-1 py-2 px-3 rounded-xl text-sm font-medium border transition-all text-center ${
+                  input.transport === opt.value
+                    ? 'bg-orange-500 text-white border-orange-500 shadow-sm'
+                    : 'bg-white text-gray-600 border-gray-200 hover:border-orange-300'
+                }`}
+              >
+                {opt.label}
+              </button>
+            ))}
+          </div>
         </div>
       </div>
 
       {/* Mood */}
       <div className="space-y-2">
         <label className="block text-sm font-semibold text-gray-700">
-          ✨ ¿Qué te apetece?{' '}
+          Qué te apetece{' '}
           <span className="text-gray-400 font-normal">(opcional)</span>
         </label>
         <div className="flex flex-wrap gap-2">
@@ -333,14 +443,17 @@ export default function PlanForm() {
                   : 'bg-white text-gray-600 border-gray-200 hover:border-orange-200'
               }`}
             >
-              {opt.emoji} {opt.label}
+              {opt.label}
             </button>
           ))}
         </div>
       </div>
 
       <button type="submit" className="w-full btn-primary py-4 text-base">
-        ✨ Generar mis 3 planes →
+        Generar mis 3 planes
+        <svg className="w-4 h-4" viewBox="0 0 16 16" fill="none">
+          <path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+        </svg>
       </button>
 
       <p className="text-center text-xs text-gray-400">

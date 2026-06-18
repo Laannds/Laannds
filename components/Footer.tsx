@@ -9,9 +9,15 @@ export default function Footer() {
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-8 mb-8">
           {/* Brand */}
           <div>
-            <div className="flex items-center gap-2 mb-3">
-              <span className="text-2xl">🎯</span>
-              <span className="font-bold text-gray-900 text-lg">¿Qué hago hoy?</span>
+            <div className="flex items-center gap-2.5 mb-3">
+              <div className="w-8 h-8 bg-orange-500 rounded-xl flex items-center justify-center shadow-sm">
+                <svg className="w-4 h-4 text-white" viewBox="0 0 16 16" fill="none">
+                  <circle cx="8" cy="8" r="6.5" stroke="currentColor" strokeWidth="1.5" />
+                  <circle cx="8" cy="8" r="3" stroke="currentColor" strokeWidth="1.5" />
+                  <circle cx="8" cy="8" r="0.75" fill="currentColor" />
+                </svg>
+              </div>
+              <span className="font-bold text-gray-900 text-[15px] tracking-tight">¿Qué hago hoy?</span>
             </div>
             <p className="text-sm text-gray-500 leading-relaxed">
               Tu concierge de ocio con IA. Planes personalizados en segundos para que
@@ -26,26 +32,17 @@ export default function Footer() {
             </h3>
             <ul className="space-y-2">
               <li>
-                <Link
-                  href="/generar"
-                  className="text-sm text-gray-500 hover:text-gray-900 transition-colors"
-                >
+                <Link href="/generar" className="text-sm text-gray-500 hover:text-gray-900 transition-colors">
                   Generar plan
                 </Link>
               </li>
               <li>
-                <Link
-                  href="/dashboard"
-                  className="text-sm text-gray-500 hover:text-gray-900 transition-colors"
-                >
+                <Link href="/dashboard" className="text-sm text-gray-500 hover:text-gray-900 transition-colors">
                   Mis planes
                 </Link>
               </li>
               <li>
-                <Link
-                  href="/#precios"
-                  className="text-sm text-gray-500 hover:text-gray-900 transition-colors"
-                >
+                <Link href="/#precios" className="text-sm text-gray-500 hover:text-gray-900 transition-colors">
                   Precios
                 </Link>
               </li>
@@ -59,26 +56,17 @@ export default function Footer() {
             </h3>
             <ul className="space-y-2">
               <li>
-                <Link
-                  href="/privacidad"
-                  className="text-sm text-gray-500 hover:text-gray-900 transition-colors"
-                >
+                <Link href="/privacidad" className="text-sm text-gray-500 hover:text-gray-900 transition-colors">
                   Política de privacidad
                 </Link>
               </li>
               <li>
-                <Link
-                  href="/terminos"
-                  className="text-sm text-gray-500 hover:text-gray-900 transition-colors"
-                >
+                <Link href="/terminos" className="text-sm text-gray-500 hover:text-gray-900 transition-colors">
                   Términos de uso
                 </Link>
               </li>
               <li>
-                <Link
-                  href="/cookies"
-                  className="text-sm text-gray-500 hover:text-gray-900 transition-colors"
-                >
+                <Link href="/cookies" className="text-sm text-gray-500 hover:text-gray-900 transition-colors">
                   Política de cookies
                 </Link>
               </li>
@@ -91,7 +79,7 @@ export default function Footer() {
             © {currentYear} ¿Qué hago hoy? Todos los derechos reservados.
           </p>
           <p className="text-sm text-gray-400">
-            Hecho con ❤️ y mucho ☕ en España
+            Hecho con dedicación en España
           </p>
         </div>
       </div>
