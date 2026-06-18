@@ -2,373 +2,447 @@ import Link from 'next/link'
 import Header from '@/components/Header'
 import Footer from '@/components/Footer'
 
-const EXAMPLE_PLANS = [
+// ─── Static data ──────────────────────────────────────────────────────────────
+
+const PREVIEW_PLANS = [
   {
     emoji: '🎨',
-    title: 'Tarde cultural en el Prado',
-    description:
-      'Sumérgete en el arte con una visita guiada al Museo del Prado y termina con un café en el barrio de las Letras.',
-    activities: [
-      'Visita las salas de Velázquez y Goya (entrada gratuita últimas 2h)',
-      'Paseo por el Parque del Retiro al atardecer',
-      'Cañas en una terraza del barrio de las Letras',
-    ],
-    cost: 8,
-    hours: 3,
-    tags: ['cultural', 'tranquilo'],
-    tip: 'El Prado es gratuito de lunes a sábado de 18:00 a 20:00 y domingos de 17:00 a 19:00.',
+    title: 'Tarde en el Prado',
+    activity: 'Entrada gratis · Retiro al atardecer · Cañas',
+    cost: '8€',
+    duration: '3h',
+    tag: 'cultural',
+    tagColor: 'bg-blue-50 text-blue-600',
   },
   {
     emoji: '🍽️',
-    title: 'Ruta gastronómica por La Latina',
-    description:
-      'Descubre los sabores más auténticos de Madrid en el barrio con más historia y los mejores bares de tapas.',
-    activities: [
-      'Aperitivo de vermut en El Tempranillo',
-      'Tapas en la Cava Baja: tortilla, patatas bravas, jamón',
-      'Postre en una horchatería centenaria',
-    ],
-    cost: 22,
-    hours: 2.5,
-    tags: ['gastronómico', 'social'],
-    tip: 'Ve antes de las 14:00 los fines de semana para evitar las colas.',
+    title: 'Ruta por La Latina',
+    activity: 'Vermut · Tapas Cava Baja · Horchatería',
+    cost: '22€',
+    duration: '2.5h',
+    tag: 'gastronómico',
+    tagColor: 'bg-amber-50 text-amber-600',
   },
   {
     emoji: '🌿',
-    title: 'Parque y mercado urbano',
-    description:
-      'Una mañana activa entre naturaleza, mercado de productores locales y una cafetería con encanto.',
-    activities: [
-      'Carrera suave por la Casa de Campo (7 km)',
-      'Mercado de Maravillas: frutas, quesos y pan artesano',
-      'Desayuno tardío en cafetería de especialidad',
-    ],
-    cost: 15,
-    hours: 2,
-    tags: ['naturaleza', 'activo'],
-    tip: 'El mercado de Maravillas tiene los mejores precios de toda la ciudad los sábados.',
+    title: 'Parque y Mercado',
+    activity: 'Casa de Campo · Mercado de Maravillas',
+    cost: '12€',
+    duration: '2h',
+    tag: 'activo',
+    tagColor: 'bg-green-50 text-green-600',
   },
 ]
 
 const STEPS = [
   {
-    number: '1',
-    icon: '📝',
+    n: '01',
     title: 'Cuéntanos tu situación',
-    description:
-      'Indica tu ciudad, cuánto tiempo tienes, tu presupuesto y con quién vas a salir.',
+    body: 'Ciudad, cuánto tiempo tienes, presupuesto y con quién vas. 4 preguntas, 20 segundos.',
   },
   {
-    number: '2',
-    icon: '🤖',
+    n: '02',
     title: 'La IA genera 3 planes',
-    description:
-      'En segundos, GPT-4o crea 3 planes concretos y variados adaptados exactamente a ti.',
+    body: 'GPT‑4o analiza miles de opciones y te devuelve 3 planes concretos, variados y realizables.',
   },
   {
-    number: '3',
-    icon: '🎉',
+    n: '03',
     title: 'Elige y disfruta',
-    description:
-      'Compara los planes, elige el que más te guste y ¡listo! Ya sabes qué hacer hoy.',
+    body: 'Compara, elige el que más te guste y exporta tu plan al día en PDF.',
   },
 ]
 
 const FAQS = [
   {
     q: '¿Es realmente gratis?',
-    a: 'Sí, el plan gratuito incluye 3 generaciones diarias sin necesidad de tarjeta de crédito. Más que suficiente para la mayoría de usuarios.',
+    a: '3 generaciones diarias, sin tarjeta de crédito. El plan Pro (4,99€/mes) añade generaciones ilimitadas e historial completo.',
   },
   {
     q: '¿Los planes son personalizados de verdad?',
-    a: 'Totalmente. Cada plan se genera en tiempo real con GPT-4o-mini usando tu ciudad, presupuesto, tiempo disponible y preferencias. No son plantillas genéricas.',
+    a: 'Cada plan se genera en tiempo real con IA usando tu ciudad, presupuesto, tiempo y preferencias. No son plantillas.',
   },
   {
     q: '¿Funciona para cualquier ciudad?',
-    a: 'Sí, funciona para cualquier ciudad del mundo. Cuanto más específico seas (barrio, zona) mejor será el resultado.',
+    a: 'Cualquier ciudad del mundo. Cuanto más específico seas (barrio, zona), mejor será el resultado.',
   },
   {
-    q: '¿Puedo cancelar el plan Pro en cualquier momento?',
-    a: 'Por supuesto. Sin permanencia, sin compromisos. Cancela cuando quieras desde tu panel de usuario.',
+    q: '¿Puedo cancelar el Pro cuando quiera?',
+    a: 'Sin permanencia. Cancela desde tu panel en cualquier momento y tendrás acceso hasta el final del período.',
   },
 ]
+
+// ─── Sub-components ───────────────────────────────────────────────────────────
+
+function HeroBrowserMockup() {
+  return (
+    <div className="relative">
+      {/* Glow */}
+      <div className="absolute -inset-4 bg-gradient-to-br from-orange-100 to-amber-50 rounded-[32px] blur-3xl opacity-70" />
+
+      {/* Browser window */}
+      <div className="relative bg-white rounded-2xl border border-gray-200 shadow-card-elevated overflow-hidden">
+        {/* Chrome bar */}
+        <div className="bg-gray-50 border-b border-gray-200 px-4 py-3 flex items-center gap-3">
+          <div className="flex gap-1.5">
+            <div className="w-3 h-3 rounded-full bg-[#FF5F57]" />
+            <div className="w-3 h-3 rounded-full bg-[#FEBC2E]" />
+            <div className="w-3 h-3 rounded-full bg-[#28C840]" />
+          </div>
+          <div className="flex-1 bg-white rounded-lg px-3 py-1.5 text-xs text-gray-400 border border-gray-200 text-center font-medium">
+            quehagohoy.es/generar
+          </div>
+          <div className="w-16" />
+        </div>
+
+        {/* App preview */}
+        <div className="p-5 space-y-3 bg-gray-50/40">
+          <div className="flex items-center gap-2 pb-1">
+            <span className="text-[11px] font-semibold text-gray-400 uppercase tracking-wider">
+              Madrid · 3h · 25€ · En pareja
+            </span>
+            <div className="flex-1 h-px bg-gray-100" />
+          </div>
+
+          {PREVIEW_PLANS.map((plan, i) => (
+            <div
+              key={i}
+              className="bg-white rounded-xl border border-gray-100 shadow-sm p-3.5 flex items-start gap-3"
+            >
+              <div className="w-9 h-9 rounded-xl bg-orange-50 flex items-center justify-center flex-shrink-0 text-lg">
+                {plan.emoji}
+              </div>
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center justify-between gap-2">
+                  <span className="text-xs font-bold text-gray-950 truncate">{plan.title}</span>
+                  <span className="text-xs font-black text-orange-500 flex-shrink-0">{plan.cost}</span>
+                </div>
+                <p className="text-[11px] text-gray-400 mt-0.5 truncate">{plan.activity}</p>
+                <div className="flex items-center gap-2 mt-1.5">
+                  <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full ${plan.tagColor}`}>
+                    {plan.tag}
+                  </span>
+                  <span className="text-[10px] text-gray-400">{plan.duration}</span>
+                </div>
+              </div>
+            </div>
+          ))}
+
+          {/* Export row */}
+          <div className="flex items-center justify-between pt-1">
+            <span className="text-[11px] text-gray-400">Generado en 6.8s ✓</span>
+            <span className="text-[11px] bg-orange-500 text-white font-semibold px-3 py-1.5 rounded-lg cursor-default">
+              Exportar PDF
+            </span>
+          </div>
+        </div>
+      </div>
+
+      {/* Floating badge */}
+      <div className="absolute -top-3 -right-3 bg-white border border-gray-100 shadow-card rounded-full px-3 py-1.5 flex items-center gap-1.5 animate-float">
+        <span className="w-2 h-2 rounded-full bg-green-400 animate-pulse" />
+        <span className="text-xs font-semibold text-gray-900">3 planes listos</span>
+      </div>
+    </div>
+  )
+}
+
+function CheckIcon() {
+  return (
+    <svg className="w-4 h-4 flex-shrink-0" viewBox="0 0 16 16" fill="none">
+      <circle cx="8" cy="8" r="8" className="fill-orange-100" />
+      <path d="M4.5 8l2.5 2.5 4-5" stroke="#f97316" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  )
+}
+
+// ─── Page ─────────────────────────────────────────────────────────────────────
 
 export default function HomePage() {
   return (
     <div className="min-h-screen bg-white">
       <Header />
 
-      {/* HERO */}
-      <section className="relative overflow-hidden bg-gradient-to-br from-orange-50 via-white to-amber-50 pt-20 pb-24">
-        {/* Decorative blobs */}
-        <div className="absolute top-0 right-0 w-96 h-96 bg-orange-200 rounded-full mix-blend-multiply filter blur-3xl opacity-20 -translate-y-1/2 translate-x-1/2" />
-        <div className="absolute bottom-0 left-0 w-64 h-64 bg-yellow-200 rounded-full mix-blend-multiply filter blur-3xl opacity-20 translate-y-1/2 -translate-x-1/4" />
+      {/* ── HERO ──────────────────────────────────────────────────────────── */}
+      <section className="relative overflow-hidden">
+        {/* Subtle radial gradient top */}
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_80%_60%_at_50%_-10%,rgba(249,115,22,0.07),transparent)] pointer-events-none" />
+        {/* Dot grid (very subtle) */}
+        <div className="absolute inset-0 bg-dot-grid opacity-[0.4] pointer-events-none" />
 
-        <div className="relative max-w-4xl mx-auto px-4 sm:px-6 text-center">
-          <div className="inline-flex items-center gap-2 bg-orange-100 text-orange-700 text-sm font-semibold px-4 py-2 rounded-full mb-6 border border-orange-200">
-            <span>🤖</span>
-            <span>Powered by GPT-4o · Gratis para empezar</span>
-          </div>
+        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 pt-20 pb-24 lg:pt-28 lg:pb-32">
+          <div className="grid lg:grid-cols-[1fr_1fr] gap-16 items-center">
 
-          <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold text-gray-900 leading-tight mb-6">
-            ¿Tienes tiempo libre y{' '}
-            <span className="text-orange-500 relative">
-              no sabes qué hacer?
-            </span>
-          </h1>
-
-          <p className="text-xl text-gray-600 max-w-2xl mx-auto mb-10 leading-relaxed">
-            Dinos tu ciudad, cuánto tiempo tienes y tu presupuesto. La IA genera{' '}
-            <strong>3 planes concretos y personalizados</strong> en segundos. Deja de perder
-            tiempo decidiendo.
-          </p>
-
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-            <Link href="/register" className="btn-primary text-lg px-8 py-4 w-full sm:w-auto">
-              ✨ Generar mi plan gratis →
-            </Link>
-            <a
-              href="#como-funciona"
-              className="text-gray-600 hover:text-gray-900 font-medium transition-colors"
-            >
-              Cómo funciona ↓
-            </a>
-          </div>
-
-          <p className="mt-4 text-sm text-gray-400">Sin tarjeta de crédito · 3 planes gratis al día</p>
-
-          {/* Social proof */}
-          <div className="mt-12 flex items-center justify-center gap-6 flex-wrap">
-            <div className="flex items-center gap-2">
-              <div className="flex -space-x-2">
-                {['🧑', '👩', '👨', '🧑‍🦱'].map((emoji, i) => (
-                  <div
-                    key={i}
-                    className="w-8 h-8 rounded-full bg-gradient-to-br from-orange-400 to-orange-600 flex items-center justify-center text-sm border-2 border-white"
-                  >
-                    {emoji}
-                  </div>
-                ))}
+            {/* Left: Copy */}
+            <div className="max-w-lg">
+              {/* Badge */}
+              <div className="badge badge-orange mb-8">
+                <span className="w-1.5 h-1.5 rounded-full bg-orange-500" />
+                Gratis para empezar · Sin tarjeta de crédito
               </div>
-              <span className="text-sm text-gray-600 font-medium">+2.000 planes generados</span>
+
+              {/* Headline */}
+              <h1 className="text-display text-gray-950 mb-6">
+                El plan perfecto,{' '}
+                <span className="text-gradient">en segundos.</span>
+              </h1>
+
+              {/* Subheading */}
+              <p className="text-lg text-gray-500 leading-relaxed mb-10 max-w-sm">
+                Dinos tu ciudad, tiempo libre y presupuesto. La IA genera{' '}
+                <strong className="text-gray-700 font-semibold">3 planes concretos para hoy</strong>{' '}
+                — sin perder el tiempo buscando.
+              </p>
+
+              {/* CTA */}
+              <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
+                <Link href="/register" className="btn-primary text-base px-8 py-3.5">
+                  Empezar gratis
+                  <svg className="w-4 h-4" viewBox="0 0 16 16" fill="none">
+                    <path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                  </svg>
+                </Link>
+                <a href="#como-funciona" className="text-sm text-gray-500 hover:text-gray-900 font-medium transition-colors flex items-center gap-1">
+                  Cómo funciona
+                  <svg className="w-3.5 h-3.5" viewBox="0 0 16 16" fill="none">
+                    <path d="M8 3v10M4 9l4 4 4-4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                  </svg>
+                </a>
+              </div>
+
+              {/* Social proof */}
+              <div className="mt-10 flex items-center gap-3">
+                <div className="flex -space-x-2">
+                  {['bg-orange-400', 'bg-amber-400', 'bg-green-400', 'bg-blue-400'].map((c, i) => (
+                    <div key={i} className={`w-8 h-8 rounded-full ${c} border-2 border-white flex items-center justify-center text-xs text-white font-bold`}>
+                      {['M', 'L', 'A', 'C'][i]}
+                    </div>
+                  ))}
+                </div>
+                <div className="text-sm">
+                  <span className="font-bold text-gray-950">+2.000</span>{' '}
+                  <span className="text-gray-500">planes generados</span>
+                </div>
+                <div className="flex items-center gap-0.5 ml-1">
+                  {[1,2,3,4,5].map(i => (
+                    <svg key={i} className="w-3.5 h-3.5 text-orange-400" viewBox="0 0 16 16" fill="currentColor">
+                      <path d="M8 1l1.8 3.6L14 5.3l-3 2.9.7 4.1L8 10.4l-3.7 1.9.7-4.1-3-2.9 4.2-.7L8 1z" />
+                    </svg>
+                  ))}
+                  <span className="ml-1 text-xs text-gray-500 font-medium">4.9</span>
+                </div>
+              </div>
             </div>
-            <div className="flex items-center gap-1">
-              {[1, 2, 3, 4, 5].map((i) => (
-                <span key={i} className="text-orange-400 text-lg">★</span>
-              ))}
-              <span className="text-sm text-gray-600 ml-1 font-medium">4.9/5</span>
+
+            {/* Right: Product preview */}
+            <div className="hidden lg:block">
+              <HeroBrowserMockup />
             </div>
           </div>
         </div>
       </section>
 
-      {/* COMO FUNCIONA */}
-      <section id="como-funciona" className="py-20 bg-white">
+      {/* ── FEATURES STRIP ────────────────────────────────────────────────── */}
+      <section className="border-y border-gray-100 bg-gray-50/60 py-5">
         <div className="max-w-5xl mx-auto px-4 sm:px-6">
-          <div className="text-center mb-14">
-            <h2 className="text-3xl sm:text-4xl font-extrabold text-gray-900 mb-4">
-              Cómo funciona
-            </h2>
-            <p className="text-lg text-gray-500 max-w-xl mx-auto">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-0 sm:divide-x divide-gray-200">
+            {[
+              { icon: '📍', label: 'Cualquier ciudad del mundo' },
+              { icon: '⚡', label: 'Resultado en menos de 10 segundos' },
+              { icon: '💰', label: 'Siempre dentro de tu presupuesto' },
+            ].map(({ icon, label }) => (
+              <div key={label} className="flex items-center gap-3 justify-center sm:px-10">
+                <span className="text-xl">{icon}</span>
+                <span className="text-sm font-semibold text-gray-700">{label}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ── COMO FUNCIONA ─────────────────────────────────────────────────── */}
+      <section id="como-funciona" className="py-28 bg-white">
+        <div className="max-w-5xl mx-auto px-4 sm:px-6">
+          <div className="text-center mb-20">
+            <p className="section-label mb-3">Proceso</p>
+            <h2 className="section-title mb-4">Simple. Rápido. Útil.</h2>
+            <p className="section-subtitle max-w-md mx-auto">
               En menos de 30 segundos tendrás 3 planes perfectos para tu día.
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          <div className="grid md:grid-cols-3 gap-12 relative">
+            {/* Connector line */}
+            <div className="hidden md:block absolute top-8 left-[calc(16.67%+1.5rem)] right-[calc(16.67%+1.5rem)] h-px bg-gradient-to-r from-orange-200 via-orange-300 to-orange-200" />
+
             {STEPS.map((step, i) => (
-              <div key={i} className="relative text-center group">
-                {/* Connector line */}
-                {i < STEPS.length - 1 && (
-                  <div className="hidden md:block absolute top-8 left-1/2 w-full h-0.5 bg-gradient-to-r from-orange-200 to-orange-100" />
-                )}
-                <div className="relative z-10">
-                  <div className="w-16 h-16 bg-orange-50 border-2 border-orange-200 rounded-2xl flex items-center justify-center text-3xl mx-auto mb-4 group-hover:border-orange-400 transition-colors">
-                    {step.icon}
-                  </div>
-                  <div className="inline-flex items-center justify-center w-6 h-6 bg-orange-500 text-white text-xs font-bold rounded-full mb-3">
-                    {step.number}
-                  </div>
-                  <h3 className="font-bold text-gray-900 text-lg mb-2">{step.title}</h3>
-                  <p className="text-gray-500 text-sm leading-relaxed">{step.description}</p>
+              <div key={i} className="text-center relative">
+                <div className="relative z-10 w-16 h-16 mx-auto mb-6 bg-white rounded-2xl border-2 border-orange-200 flex items-center justify-center shadow-card">
+                  <span className="text-xl font-black text-orange-500 tracking-tighter">{step.n}</span>
                 </div>
+                <h3 className="font-bold text-gray-950 text-lg mb-3 tracking-tight">{step.title}</h3>
+                <p className="text-gray-500 text-sm leading-relaxed">{step.body}</p>
               </div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* EXAMPLE PLANS */}
-      <section className="py-20 bg-gray-50">
+      {/* ── EXAMPLE OUTPUT ────────────────────────────────────────────────── */}
+      <section className="py-28 bg-gray-950 overflow-hidden">
         <div className="max-w-5xl mx-auto px-4 sm:px-6">
-          <div className="text-center mb-14">
-            <div className="inline-block bg-orange-100 text-orange-700 text-sm font-semibold px-4 py-1.5 rounded-full mb-4">
-              Ejemplo real
-            </div>
-            <h2 className="text-3xl sm:text-4xl font-extrabold text-gray-900 mb-4">
-              Esto es lo que genera la IA
+          <div className="text-center mb-16">
+            <p className="section-label text-orange-400 mb-3">Ejemplo real</p>
+            <h2 className="section-title text-white mb-4">
+              Esto es lo que obtienes
             </h2>
-            <p className="text-gray-500 text-lg max-w-xl mx-auto">
-              Para Madrid, tarde libre (3h), 25€ de presupuesto, en pareja.
+            <p className="text-gray-400 text-lg max-w-lg mx-auto">
+              Para Madrid · 3 horas · 25€ · En pareja.
+              Generado por la IA en 7 segundos.
             </p>
           </div>
 
-          <div className="grid gap-6 md:grid-cols-3">
-            {EXAMPLE_PLANS.map((plan, i) => (
-              <div
-                key={i}
-                className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6 flex flex-col gap-4 hover:shadow-md transition-shadow"
-              >
+          <div className="grid md:grid-cols-3 gap-5">
+            {[
+              {
+                emoji: '🎨',
+                title: 'Tarde Cultural en el Prado',
+                desc: 'Arte, parque y vermut. La tarde perfecta sin gastar casi nada.',
+                activities: ['Prado gratis últimas 2h (18:00–20:00)', 'Paseo por el Retiro al atardecer', 'Cañas en La Latina'],
+                cost: '8€', hours: '3h', tag: 'cultural',
+              },
+              {
+                emoji: '🍽️',
+                title: 'Ruta Gastronómica La Latina',
+                desc: 'Los mejores bares de tapas del Madrid más auténtico.',
+                activities: ['Aperitivo de vermut en El Tempranillo', 'Tapas en la Cava Baja', 'Postre en Horchatería centenaria'],
+                cost: '22€', hours: '2.5h', tag: 'gastronómico',
+              },
+              {
+                emoji: '🌿',
+                title: 'Parque y Mercado Urbano',
+                desc: 'Naturaleza, productores locales y el mejor desayuno tardío.',
+                activities: ['Carrera suave por Casa de Campo', 'Mercado de Maravillas (sábados)', 'Café de especialidad'],
+                cost: '12€', hours: '2h', tag: 'activo',
+              },
+            ].map((plan, i) => (
+              <div key={i} className="bg-white/5 border border-white/10 rounded-2xl p-5 flex flex-col gap-4 hover:bg-white/8 transition-colors duration-200">
                 <div className="flex items-start gap-3">
-                  <span className="text-4xl">{plan.emoji}</span>
+                  <div className="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center text-xl flex-shrink-0">
+                    {plan.emoji}
+                  </div>
                   <div>
-                    <span className="text-xs font-semibold text-orange-500 uppercase tracking-wide">
-                      Plan {i + 1}
-                    </span>
-                    <h3 className="font-bold text-gray-900 text-lg leading-tight">{plan.title}</h3>
-                    <p className="text-sm text-gray-500 mt-1">{plan.description}</p>
+                    <p className="text-[11px] font-bold text-orange-400 uppercase tracking-wider mb-1">Plan {i + 1}</p>
+                    <h3 className="font-bold text-white text-sm leading-tight">{plan.title}</h3>
+                    <p className="text-gray-400 text-xs mt-1 leading-relaxed">{plan.desc}</p>
                   </div>
                 </div>
 
-                <ul className="space-y-2">
-                  {plan.activities.map((activity, j) => (
-                    <li key={j} className="flex items-start gap-2 text-sm text-gray-700">
-                      <span className="text-orange-400 mt-0.5 flex-shrink-0">→</span>
-                      <span>{activity}</span>
+                <ul className="space-y-1.5">
+                  {plan.activities.map((a, j) => (
+                    <li key={j} className="flex items-start gap-2 text-xs text-gray-300">
+                      <span className="text-orange-500 mt-0.5 flex-shrink-0 font-bold">→</span>
+                      <span>{a}</span>
                     </li>
                   ))}
                 </ul>
 
-                {plan.tip && (
-                  <div className="bg-orange-50 rounded-xl p-3 text-sm text-orange-800">
-                    <span className="font-semibold">💡 Tip: </span>
-                    {plan.tip}
-                  </div>
-                )}
-
-                <div className="pt-3 border-t border-gray-100 flex items-center justify-between">
+                <div className="pt-3 border-t border-white/10 flex items-center justify-between">
                   <div className="flex items-center gap-3">
-                    <div className="flex items-center gap-1 text-sm font-semibold text-gray-900">
-                      <span>💰</span>
-                      <span>{plan.cost}€</span>
-                    </div>
-                    <div className="flex items-center gap-1 text-sm text-gray-500">
-                      <span>⏱</span>
-                      <span>{plan.hours}h</span>
-                    </div>
+                    <span className="text-sm font-bold text-white">{plan.cost}</span>
+                    <span className="text-xs text-gray-500">{plan.hours}</span>
                   </div>
-                  <div className="flex gap-1">
-                    {plan.tags.map((tag, j) => {
-                      const colors = [
-                        'bg-blue-100 text-blue-700',
-                        'bg-green-100 text-green-700',
-                      ]
-                      return (
-                        <span
-                          key={tag}
-                          className={`text-xs px-2 py-1 rounded-full font-medium ${colors[j % colors.length]}`}
-                        >
-                          {tag}
-                        </span>
-                      )
-                    })}
-                  </div>
+                  <span className="text-[10px] font-semibold bg-white/10 text-gray-300 px-2.5 py-1 rounded-full">
+                    {plan.tag}
+                  </span>
                 </div>
               </div>
             ))}
           </div>
 
-          <div className="text-center mt-10">
-            <Link href="/register" className="btn-primary text-lg px-8 py-4">
-              Pruébalo gratis →
+          <div className="text-center mt-12">
+            <Link href="/register" className="btn-primary text-base px-8 py-3.5">
+              Generar mis planes gratis
+              <svg className="w-4 h-4" viewBox="0 0 16 16" fill="none">
+                <path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
             </Link>
           </div>
         </div>
       </section>
 
-      {/* PRICING */}
-      <section id="precios" className="py-20 bg-white">
+      {/* ── PRICING ───────────────────────────────────────────────────────── */}
+      <section id="precios" className="py-28 bg-white">
         <div className="max-w-4xl mx-auto px-4 sm:px-6">
-          <div className="text-center mb-14">
-            <h2 className="text-3xl sm:text-4xl font-extrabold text-gray-900 mb-4">
-              Precios simples y transparentes
-            </h2>
-            <p className="text-gray-500 text-lg max-w-xl mx-auto">
-              Empieza gratis. Actualiza cuando lo necesites.
+          <div className="text-center mb-16">
+            <p className="section-label mb-3">Precios</p>
+            <h2 className="section-title mb-4">Simple. Sin sorpresas.</h2>
+            <p className="section-subtitle max-w-md mx-auto">
+              Empieza gratis. Actualiza solo si lo necesitas.
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-3xl mx-auto">
+          <div className="grid md:grid-cols-2 gap-6 max-w-3xl mx-auto">
             {/* Free */}
-            <div className="rounded-2xl border-2 border-gray-100 p-8 flex flex-col">
-              <div className="mb-6">
-                <h3 className="text-xl font-bold text-gray-900 mb-1">Gratis</h3>
-                <div className="flex items-end gap-1">
-                  <span className="text-4xl font-extrabold text-gray-900">0€</span>
-                  <span className="text-gray-400 mb-1">/mes</span>
+            <div className="rounded-2xl border border-gray-200 p-8 flex flex-col bg-white shadow-card">
+              <div className="mb-8">
+                <h3 className="text-base font-bold text-gray-950 mb-4">Gratis</h3>
+                <div className="flex items-baseline gap-1">
+                  <span className="text-5xl font-black text-gray-950 tracking-tighter">0€</span>
+                  <span className="text-gray-400 text-sm">/mes</span>
                 </div>
-                <p className="text-gray-500 text-sm mt-2">Para quien quiere probar la app</p>
+                <p className="text-gray-500 text-sm mt-2">Para descubrir si funciona para ti.</p>
               </div>
 
               <ul className="space-y-3 flex-1 mb-8">
-                {[
-                  '3 generaciones por día',
-                  'Los 3 planes completos',
-                  'Historial de 7 días',
-                  'Sin tarjeta de crédito',
-                ].map((feature) => (
-                  <li key={feature} className="flex items-center gap-3 text-sm text-gray-700">
-                    <span className="w-5 h-5 bg-green-100 text-green-600 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0">
-                      ✓
-                    </span>
-                    {feature}
+                {['3 generaciones al día', '3 planes completos por búsqueda', 'Exportar a PDF', 'Sin tarjeta de crédito'].map(f => (
+                  <li key={f} className="flex items-center gap-3 text-sm text-gray-700">
+                    <CheckIcon />
+                    {f}
                   </li>
                 ))}
               </ul>
 
-              <Link
-                href="/register"
-                className="w-full text-center btn-secondary py-3 block"
-              >
+              <Link href="/register" className="btn-secondary w-full py-3 text-sm">
                 Empezar gratis
               </Link>
             </div>
 
             {/* Pro */}
-            <div className="rounded-2xl border-2 border-orange-500 p-8 flex flex-col relative bg-gradient-to-br from-orange-50 to-white">
-              <div className="absolute -top-3 left-1/2 -translate-x-1/2">
-                <span className="bg-orange-500 text-white text-xs font-bold px-4 py-1 rounded-full">
-                  MÁS POPULAR
+            <div className="rounded-2xl border-2 border-orange-500 p-8 flex flex-col relative bg-white shadow-orange overflow-hidden">
+              {/* Top fill */}
+              <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-orange-400 to-orange-600" />
+
+              <div className="absolute top-4 right-4">
+                <span className="text-[10px] font-black text-orange-500 uppercase tracking-widest bg-orange-50 border border-orange-100 px-2.5 py-1 rounded-full">
+                  Más popular
                 </span>
               </div>
 
-              <div className="mb-6">
-                <h3 className="text-xl font-bold text-gray-900 mb-1">Pro</h3>
-                <div className="flex items-end gap-1">
-                  <span className="text-4xl font-extrabold text-gray-900">4,99€</span>
-                  <span className="text-gray-400 mb-1">/mes</span>
+              <div className="mb-8">
+                <h3 className="text-base font-bold text-gray-950 mb-4">Pro</h3>
+                <div className="flex items-baseline gap-1">
+                  <span className="text-5xl font-black text-gray-950 tracking-tighter">4,99€</span>
+                  <span className="text-gray-400 text-sm">/mes</span>
                 </div>
-                <p className="text-gray-500 text-sm mt-2">Para los que salen mucho</p>
+                <p className="text-gray-500 text-sm mt-2">Para quien tiene muchos planes.</p>
               </div>
 
               <ul className="space-y-3 flex-1 mb-8">
                 {[
                   'Generaciones ilimitadas',
-                  'Los 3 planes completos',
+                  '3 planes completos por búsqueda',
                   'Historial completo',
-                  'Planes más detallados',
-                  'Soporte prioritario',
+                  'Exportar a PDF',
                   'Cancela cuando quieras',
-                ].map((feature) => (
-                  <li key={feature} className="flex items-center gap-3 text-sm text-gray-700">
-                    <span className="w-5 h-5 bg-orange-100 text-orange-600 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0">
-                      ✓
-                    </span>
-                    {feature}
+                ].map(f => (
+                  <li key={f} className="flex items-center gap-3 text-sm text-gray-700">
+                    <CheckIcon />
+                    {f}
                   </li>
                 ))}
               </ul>
 
-              <Link href="/register" className="w-full text-center btn-primary py-3 block">
+              <Link href="/register" className="btn-primary w-full py-3 text-sm">
                 Empezar con Pro →
               </Link>
             </div>
@@ -376,19 +450,18 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* FAQ */}
-      <section className="py-20 bg-gray-50">
-        <div className="max-w-3xl mx-auto px-4 sm:px-6">
+      {/* ── FAQ ───────────────────────────────────────────────────────────── */}
+      <section className="py-24 bg-gray-50">
+        <div className="max-w-2xl mx-auto px-4 sm:px-6">
           <div className="text-center mb-14">
-            <h2 className="text-3xl sm:text-4xl font-extrabold text-gray-900 mb-4">
-              Preguntas frecuentes
-            </h2>
+            <p className="section-label mb-3">FAQ</p>
+            <h2 className="section-title">Preguntas frecuentes</h2>
           </div>
 
-          <div className="space-y-4">
+          <div className="space-y-3">
             {FAQS.map((faq, i) => (
-              <div key={i} className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
-                <h3 className="font-bold text-gray-900 mb-2">{faq.q}</h3>
+              <div key={i} className="bg-white rounded-2xl border border-gray-100 shadow-card p-6">
+                <h3 className="font-bold text-gray-950 mb-2 tracking-tight">{faq.q}</h3>
                 <p className="text-gray-500 text-sm leading-relaxed">{faq.a}</p>
               </div>
             ))}
@@ -396,23 +469,26 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* FINAL CTA */}
-      <section className="py-20 bg-gradient-to-br from-orange-500 to-orange-600">
+      {/* ── FINAL CTA ─────────────────────────────────────────────────────── */}
+      <section className="py-28 bg-white">
         <div className="max-w-3xl mx-auto px-4 sm:px-6 text-center">
-          <h2 className="text-3xl sm:text-4xl font-extrabold text-white mb-4">
-            ¿Listo para dejar de aburrirte?
+          <p className="section-label mb-6">Empieza hoy</p>
+          <h2 className="text-display text-gray-950 mb-6">
+            Deja de decidir.
+            <br />
+            <span className="text-gradient">Empieza a disfrutar.</span>
           </h2>
-          <p className="text-orange-100 text-lg mb-8 max-w-xl mx-auto">
-            Únete a miles de personas que ya usan ¿Qué hago hoy? para aprovechar al máximo su
-            tiempo libre.
+          <p className="section-subtitle mb-10 max-w-md mx-auto">
+            En 30 segundos tienes 3 planes para hoy.
+            Completamente gratis.
           </p>
-          <Link
-            href="/register"
-            className="bg-white text-orange-600 font-bold px-8 py-4 rounded-xl text-lg hover:bg-orange-50 transition-colors shadow-md inline-block"
-          >
-            Crear mi cuenta gratis →
+          <Link href="/register" className="btn-primary text-base px-10 py-4">
+            Crear cuenta gratis
+            <svg className="w-4 h-4" viewBox="0 0 16 16" fill="none">
+              <path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
           </Link>
-          <p className="mt-4 text-orange-200 text-sm">Sin tarjeta de crédito · 3 planes gratis al día</p>
+          <p className="mt-5 text-sm text-gray-400">Sin tarjeta · 3 planes gratis al día · Cancela cuando quieras</p>
         </div>
       </section>
 
