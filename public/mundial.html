@@ -275,6 +275,13 @@ html,body{background:var(--bg);color:var(--text);font-family:-apple-system,Blink
 .bm-name{font-size:12px;font-weight:600;color:var(--sub);flex:1}
 .bm-flag{font-size:18px}
 .bm-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+
+/* ── SHARE / CODE ── */
+.code-input{width:100%;text-align:center;font-size:34px;font-weight:900;letter-spacing:8px;background:var(--surface);border:2px solid rgba(255,184,0,.3);border-radius:var(--r-sm);padding:18px 10px;color:var(--gold);font-family:inherit;-webkit-appearance:none;outline:none;text-transform:uppercase}
+.code-input:focus{border-color:rgba(255,184,0,.7)}
+.code-display{font-size:44px;font-weight:900;letter-spacing:10px;color:var(--gold);text-align:center;padding:20px 0;filter:drop-shadow(0 4px 16px rgba(255,184,0,.35))}
+.share-box{border-radius:var(--radius);padding:22px;margin-bottom:16px;text-align:center;background:linear-gradient(135deg,rgba(255,184,0,.12),rgba(217,119,6,.06));border:1px solid rgba(255,184,0,.22)}
+.code-badge{display:inline-flex;align-items:center;gap:5px;background:rgba(255,184,0,.12);border:1px solid rgba(255,184,0,.28);border-radius:100px;padding:5px 13px;font-size:13px;font-weight:900;color:var(--gold);letter-spacing:.15em;cursor:pointer}
 </style>
 </head>
 <body>
@@ -447,10 +454,20 @@ const SCORERS=['K. Mbappé','E. Haaland','V. Osimhen','L. Messi','V. Júnior','R
 // STATE
 // ═══════════════════════════════════════
 let TAB='home',FT='r32',EG='A',QV='menu',AF=null,SN=['','','','','','','',''],ST=['','','','','','','',''],SPICK=-1
-let Q=null
-try{Q=JSON.parse(localStorage.getItem('mw26')||'null')}catch(e){}
+let Q=null,QCODE=null
+try{Q=JSON.parse(localStorage.getItem('mw26')||'null');if(Q&&Q.code)QCODE=Q.code}catch(e){}
 
-function saveQ(){try{localStorage.setItem('mw26',JSON.stringify(Q))}catch(e){}}
+function saveQ(){try{localStorage.setItem('mw26',JSON.stringify(Q))}catch(e){};syncQ()}
+function syncQ(){
+  if(!QCODE||!Q)return
+  fetch('/api/quinela/'+QCODE,{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify(Q)}).catch(function(){})
+}
+function doShare(code){
+  var msg='Únete a la quiniela del Mundial con el código: '+code
+  if(navigator.share){navigator.share({title:'Quiniela Mundial 2026',text:msg,url:location.href}).catch(function(){})}
+  else if(navigator.clipboard){navigator.clipboard.writeText(code).then(function(){alert('Código copiado: '+code)}).catch(function(){alert('Código: '+code)})}
+  else{alert('Código: '+code)}
+}
 
 // ═══════════════════════════════════════
 // UTILS
@@ -648,6 +665,9 @@ function sft(t){FT=t;document.getElementById('content').innerHTML=rFixture()}
 function rQ(){
   if(QV==='menu')return rQMenu()
   if(QV==='setup')return rQSetup()
+  if(QV==='join')return rQJoin()
+  if(QV==='share')return rQShare()
+  if(QV==='loading')return rQLoading()
   if(QV==='lb')return rQLB()
   if(QV==='predict')return rQPredict()
   return''
@@ -663,7 +683,38 @@ function rQMenu(){
     ${[['Octavos de Final (×16)',2],['Cuartos de Final (×8)',4],['Semifinal (×4)',6],['Gran Final (×1)',10]].map(([r,p])=>`
       <div class="q-score-row"><span style="color:var(--sub)">${r}</span><span class="q-pts">+${p} pts</span></div>`).join('')}
   </div>
-  <button class="btn btn-red" onclick="qv('setup')">Crear Quiniela</button>
+  <button class="btn btn-red" style="margin-bottom:10px" onclick="qv('setup')">Crear sala nueva</button>
+  <button class="btn btn-ghost" onclick="qv('join')">Unirme con código</button>
+  </div>`
+}
+function rQJoin(){
+  return`<div class="page">
+    <button class="back" onclick="qv('menu')"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>Atrás</button>
+    <div class="title">Unirse a sala</div>
+    <div class="subtitle">Pide el código de 6 caracteres al que creó la quiniela</div>
+    <div style="margin-top:24px">
+      <input id="jc" class="code-input" type="text" inputmode="text" autocomplete="off" maxlength="6" placeholder="CÓDIGO"
+        oninput="this.value=this.value.toUpperCase().replace(/[^A-Z0-9]/g,'')">
+      <button class="btn btn-red" style="margin-top:14px" onclick="joinQ(document.getElementById('jc').value)">Entrar a la sala</button>
+    </div>
+  </div>`
+}
+function rQShare(){
+  var code=QCODE||'------'
+  return`<div class="page" style="text-align:center">
+    <div class="share-box">
+      <div style="font-size:11px;font-weight:800;color:var(--gold);text-transform:uppercase;letter-spacing:.12em;margin-bottom:8px">Sala creada</div>
+      <div class="code-display">${code}</div>
+      <div style="font-size:12px;color:var(--sub);margin-top:6px">Comparte este código con tus amigos</div>
+    </div>
+    <button class="btn btn-ghost" style="margin-bottom:10px" onclick="doShare('${code}')">Compartir código</button>
+    <button class="btn btn-red" onclick="qv('lb')">Ver la quiniela</button>
+  </div>`
+}
+function rQLoading(){
+  return`<div class="page" style="text-align:center;padding-top:80px">
+    <div style="font-size:48px;animation:pulse 1.2s infinite">⏳</div>
+    <div style="margin-top:16px;font-size:14px;color:var(--sub);font-weight:600">Conectando...</div>
   </div>`
 }
 function rQSetup(){
@@ -700,7 +751,10 @@ function rQLB(){
   const ranked=[...Q.friends].map(f=>({...f,pts:calcPts(f)})).sort((a,b)=>b.pts-a.pts)
   let h=`<div class="page">
     <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:4px">
-      <div><div class="title">Quiniela</div><div class="subtitle">Toca tu nombre para predecir</div></div>
+      <div>
+        <div class="title">Quiniela</div>
+        ${QCODE?`<div style="margin-top:5px"><span class="code-badge" onclick="doShare('${QCODE}')">📋 ${QCODE}</span></div>`:`<div class="subtitle">Toca tu nombre para predecir</div>`}
+      </div>
       <button class="reset-btn" onclick="resetQ()">Reiniciar</button>
     </div>`
   if(ranked.length>=3){
@@ -828,17 +882,49 @@ function rQPredict(){
 // ═══════════════════════════════════════
 function qv(v){QV=v;document.getElementById('content').innerHTML=rQ();document.getElementById('content').scrollTop=0}
 function openP(fid){AF=fid;qv('predict')}
-function createQ(){
+async function createQ(){
   const active=SN.map((n,i)=>({n:n.trim(),t:ST[i]})).filter(x=>x.n)
   if(active.length<2){alert('Añade al menos 2 jugadores');return}
   if(active.some(x=>!x.t)){alert('Cada jugador debe elegir su equipo');return}
   if(new Set(active.map(x=>x.t)).size<active.length){alert('Cada jugador debe elegir un equipo diferente');return}
-  Q={friends:active.map((x,i)=>({id:'f'+i,name:x.n,team:x.t,champion:'',topScorer:'',predictions:[]})),at:new Date().toISOString()}
-  saveQ();document.getElementById('q-pip').style.display='block';qv('lb')
+  const friends=active.map((x,i)=>({id:'f'+i,name:x.n,team:x.t,champion:'',topScorer:'',predictions:[]}))
+  qv('loading')
+  try{
+    const res=await fetch('/api/quinela',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({friends,at:new Date().toISOString()})})
+    if(!res.ok)throw new Error('Error '+res.status)
+    const json=await res.json()
+    QCODE=json.code
+    Q={friends,at:new Date().toISOString(),code:QCODE}
+    try{localStorage.setItem('mw26',JSON.stringify(Q))}catch(e){}
+    document.getElementById('q-pip').style.display='block'
+    qv('share')
+  }catch(err){
+    alert('Error al crear la sala. Verifica tu conexión e inténtalo de nuevo.')
+    qv('setup')
+  }
+}
+async function joinQ(code){
+  code=(code||'').trim().toUpperCase()
+  if(code.length<4){alert('Introduce un código válido (6 caracteres)');return}
+  qv('loading')
+  try{
+    const res=await fetch('/api/quinela/'+code)
+    if(res.status===404){throw new Error('Sala no encontrada. Comprueba el código.')}
+    if(!res.ok)throw new Error('Error del servidor. Inténtalo de nuevo.')
+    const data=await res.json()
+    QCODE=code
+    Q=data;Q.code=code
+    try{localStorage.setItem('mw26',JSON.stringify(Q))}catch(e){}
+    document.getElementById('q-pip').style.display='block'
+    qv('lb')
+  }catch(err){
+    alert(err.message||'Error al conectar. Comprueba tu conexión.')
+    qv('join')
+  }
 }
 function tsp(i){SPICK=SPICK===i?-1:i;document.getElementById('content').innerHTML=rQSetup();document.getElementById('content').scrollTop=0}
 function pts(i,code){ST[i]=ST[i]===code?'':code;SPICK=-1;document.getElementById('content').innerHTML=rQSetup()}
-function resetQ(){if(!confirm('¿Borrar toda la quiniela?'))return;try{localStorage.removeItem('mw26')}catch(e){};Q=null;SN=['','','','','','','',''];ST=['','','','','','','',''];SPICK=-1;document.getElementById('q-pip').style.display='none';qv('menu')}
+function resetQ(){if(!confirm('¿Borrar toda la quiniela?'))return;try{localStorage.removeItem('mw26')}catch(e){};Q=null;QCODE=null;SN=['','','','','','','',''];ST=['','','','','','','',''];SPICK=-1;document.getElementById('q-pip').style.display='none';qv('menu')}
 function pChamp(fid,code){
   const fr=Q.friends.find(f=>f.id===fid);if(!fr)return
   fr.champion=fr.champion===code?'':code;saveQ()
@@ -892,6 +978,19 @@ function init(){
   }
 }
 if(document.readyState==='loading'){document.addEventListener('DOMContentLoaded',init)}else{init()}
+
+// Auto-refresh leaderboard every 25s when on lb view with a room code
+setInterval(async function(){
+  if(document.hidden||TAB!=='quiniela'||QV!=='lb'||!QCODE)return
+  try{
+    var r=await fetch('/api/quinela/'+QCODE)
+    if(!r.ok)return
+    var d=await r.json()
+    Q=d;Q.code=QCODE
+    try{localStorage.setItem('mw26',JSON.stringify(Q))}catch(e){}
+    document.getElementById('content').innerHTML=rQLB()
+  }catch(e){}
+},25000)
 </script>
 </body>
 </html>
