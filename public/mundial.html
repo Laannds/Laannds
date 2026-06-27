@@ -268,7 +268,18 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);fon
 </head>
 <body>
 <div id="app">
-  <div id="content"></div>
+  <div id="content">
+    <noscript>
+      <div style="min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:40px 24px;gap:16px">
+        <div style="font-size:64px">⚽</div>
+        <div style="font-size:22px;font-weight:900;color:#F0F2F8">Mundial 2026</div>
+        <div style="font-size:14px;color:#8892A4;line-height:1.6">Para abrir la app correctamente,<br>pulsa el botón <b style="color:#FF0A2B">Compartir ↑</b><br>y elige <b style="color:#FF0A2B">Abrir en Safari</b></div>
+        <div style="background:rgba(255,10,43,.12);border:1px solid rgba(255,10,43,.3);border-radius:16px;padding:14px 20px;font-size:12px;color:#FF6680;max-width:280px">
+          Este archivo necesita Safari para funcionar.<br>Quick Look no ejecuta JavaScript.
+        </div>
+      </div>
+    </noscript>
+  </div>
   <nav id="nav">
     <button class="nb on" id="nb-home" onclick="go('home')">
       <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" stroke-linecap="round" stroke-linejoin="round"/><polyline points="9 22 9 12 15 12 15 22" stroke-linecap="round" stroke-linejoin="round"/></svg>
@@ -416,7 +427,7 @@ let TAB='home',FT='r32',EG='A',QV='menu',AF=null,SN=['','','','','','','','']
 let Q=null
 try{Q=JSON.parse(localStorage.getItem('mw26')||'null')}catch(e){}
 
-function saveQ(){localStorage.setItem('mw26',JSON.stringify(Q))}
+function saveQ(){try{localStorage.setItem('mw26',JSON.stringify(Q))}catch(e){}}
 
 // ═══════════════════════════════════════
 // UTILS
@@ -781,7 +792,7 @@ function createQ(){
   Q={friends:names.map((n,i)=>({id:'f'+i,name:n,champion:'',topScorer:'',predictions:[]})),at:new Date().toISOString()}
   saveQ();document.getElementById('q-pip').style.display='block';qv('lb')
 }
-function resetQ(){if(!confirm('¿Borrar toda la quiniela?'))return;localStorage.removeItem('mw26');Q=null;SN=['','','','','','','',''];document.getElementById('q-pip').style.display='none';qv('menu')}
+function resetQ(){if(!confirm('¿Borrar toda la quiniela?'))return;try{localStorage.removeItem('mw26')}catch(e){};Q=null;SN=['','','','','','','',''];document.getElementById('q-pip').style.display='none';qv('menu')}
 function pChamp(fid,code){
   const fr=Q.friends.find(f=>f.id===fid);if(!fr)return
   fr.champion=fr.champion===code?'':code;saveQ()
