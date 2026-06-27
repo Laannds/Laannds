@@ -175,6 +175,16 @@ html,body{background:var(--bg);color:var(--text);font-family:-apple-system,Blink
 .si-num{color:var(--red);font-weight:900;font-size:13px;width:20px;text-align:center;flex-shrink:0}
 .si-in{flex:1;background:none;border:none;color:var(--text);font-size:15px;font-weight:600;outline:none;font-family:inherit;-webkit-appearance:none}
 .si-in::placeholder{color:#2A3042}
+.si-team-btn{flex-shrink:0;border:none;border-radius:10px;padding:5px 10px;cursor:pointer;font-size:20px;line-height:1;-webkit-appearance:none;transition:all .15s}
+.si-team-btn:active{transform:scale(.9)}
+.sit-grid{display:grid;grid-template-columns:repeat(8,1fr);gap:3px;padding:10px 0 4px}
+.sit{display:flex;flex-direction:column;align-items:center;gap:1px;padding:6px 2px;border-radius:8px;border:none;cursor:pointer;background:rgba(255,255,255,.06);transition:all .14s;-webkit-appearance:none}
+.sit:active{transform:scale(.88)}
+.sit.sel{background:var(--gold);transform:scale(1.06)}
+.sit.used{opacity:.22;pointer-events:none}
+.sit-f{font-size:18px;line-height:1}
+.sit-c{font-size:7px;font-weight:800;color:var(--sub)}
+.sit.sel .sit-c{color:rgba(0,0,0,.7)}
 
 /* ── LEADERBOARD ── */
 .podium{display:flex;align-items:flex-end;justify-content:center;gap:8px;height:145px;margin-bottom:22px}
@@ -436,7 +446,7 @@ const SCORERS=['K. Mbappé','E. Haaland','V. Osimhen','L. Messi','V. Júnior','R
 // ═══════════════════════════════════════
 // STATE
 // ═══════════════════════════════════════
-let TAB='home',FT='r32',EG='A',QV='menu',AF=null,SN=['','','','','','','','']
+let TAB='home',FT='r32',EG='A',QV='menu',AF=null,SN=['','','','','','','',''],ST=['','','','','','','',''],SPICK=-1
 let Q=null
 try{Q=JSON.parse(localStorage.getItem('mw26')||'null')}catch(e){}
 
@@ -551,7 +561,7 @@ function rGrupos(){
         </div>
         <svg class="grp-arrow" style="transform:rotate(${open?180:0}deg)" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
       </div>
-      <div class="grp-body ${open?'open':''}">" +( open?rGB(gid):'')+"</div>
+      <div class="grp-body ${open?'open':''}">" + (open?rGB(gid):'')+"</div>
     </div>`
   })
   h+=`</div></div>`;return h
@@ -659,20 +669,30 @@ function rQMenu(){
 function rQSetup(){
   let h=`<div class="page">
     <button class="back" onclick="qv('menu')">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
-      Atrás
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>Atrás
     </button>
-    <div class="title">Añade a tus amigos</div>
-    <div class="subtitle">Mínimo 2, máximo 8 jugadores</div>
-    <div style="margin-top:18px">`
+    <div class="title">Jugadores y equipos</div>
+    <div class="subtitle">Nombre + equipo por jugador · Mínimo 2</div>
+    <div style="margin-top:16px">`
   SN.forEach((n,i)=>{
-    h+=`<div class="si-row">
-      <span class="si-num">${i+1}</span>
-      <input class="si-in" type="text" placeholder="Jugador ${i+1}" value="${esc(n)}"
-        oninput="SN[${i}]=this.value" inputmode="text" autocomplete="off">
+    const tm=ST[i],open=SPICK===i
+    h+=`<div style="margin-bottom:6px">
+      <div class="si-row" style="margin-bottom:0">
+        <span class="si-num">${i+1}</span>
+        <input class="si-in" type="text" placeholder="Jugador ${i+1}" value="${esc(n)}"
+          oninput="SN[${i}]=this.value" inputmode="text" autocomplete="off">
+        <button class="si-team-btn" onclick="tsp(${i})"
+          style="background:${tm?'rgba(255,184,0,.18)':'rgba(255,255,255,.08)'}">
+          ${tm?`<span style="font-size:20px">${T[tm].f}</span>`:`<span style="font-size:13px;font-weight:800;color:var(--muted)">?</span>`}
+        </button>
+      </div>
+      ${open?`<div class="sit-grid">${Object.keys(T).map(c=>{
+        const taken=ST.some((t,j)=>t===c&&j!==i)
+        return`<button class="sit${ST[i]===c?' sel':''}${taken?' used':''}" onclick="pts(${i},'${c}')"><span class="sit-f">${T[c].f}</span><span class="sit-c">${c}</span></button>`
+      }).join('')}</div>`:''}
     </div>`
   })
-  h+=`</div><button class="btn btn-red" style="margin-top:20px" onclick="createQ()">Empezar</button></div>`
+  h+=`</div><button class="btn btn-red" style="margin-top:14px" onclick="createQ()">Comenzar</button></div>`
   return h
 }
 function rQLB(){
@@ -690,6 +710,7 @@ function rQLB(){
     ord.forEach((f,i)=>{
       h+=`<div class="pod-item">
         <span style="font-size:22px">${em[i]}</span>
+        ${f.team?`<span style="font-size:20px">${T[f.team].f}</span>`:''}
         <span class="pod-name">${esc(f.name.split(' ')[0])}</span>
         <div class="pod-bar ${cls[i]}" style="height:${hts[i]}"><span class="pod-pts">${f.pts}</span></div>
       </div>`
@@ -701,6 +722,7 @@ function rQLB(){
     const rk=['var(--gold)','#B0BAC8','#D97706']
     h+=`<div class="lb-row" onclick="openP('${f.id}')">
       <span class="lb-rank" style="color:${rk[i]||'var(--muted)'}">${i+1}</span>
+      ${f.team?`<span style="font-size:28px;flex-shrink:0">${T[f.team].f}</span>`:''}
       <div class="lb-info">
         <div class="lb-name">${esc(f.name)}</div>
         <div class="lb-detail">${c?`Campeón: ${T[f.champion].f} ${esc(c)}`:'Sin predicciones aún'}</div>
@@ -726,17 +748,24 @@ function rQPredict(){
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>Atrás
     </button>
     <div class="pd-hd">
-      <div><div class="title">${esc(fr.name)}</div><div class="subtitle">Toca para elegir</div></div>
+      <div style="display:flex;align-items:center;gap:10px">
+        ${fr.team?`<span style="font-size:38px;line-height:1;filter:drop-shadow(0 2px 8px rgba(0,0,0,.4))">${T[fr.team].f}</span>`:''}
+        <div><div class="title">${esc(fr.name)}</div><div class="subtitle">Toca para elegir</div></div>
+      </div>
       <div class="pd-pts-badge"><div class="pd-pts-lbl">Puntos</div><div class="pd-pts-val">${pts}</div></div>
     </div>`
 
-  // Champion
+  // Champion — only teams chosen during setup
+  const qTeams=Q.friends.map(f=>f.team).filter(Boolean)
   h+=`<div class="champ-box"><div class="champ-lbl">Campeón del Mundo</div>
-    <div class="team-grid">`
-  Object.keys(T).forEach(code=>{
+    <div style="display:grid;grid-template-columns:repeat(${Math.min(qTeams.length,4)},1fr);gap:8px;margin-bottom:${fr.champion?'10px':'0'}">`
+  qTeams.forEach(code=>{
     const t=T[code],sel=fr.champion===code
-    h+=`<button class="tc ${sel?'sel':''}" onclick="pChamp('${fr.id}','${code}')">
-      <span class="tc-flag">${t.f}</span><span class="tc-code">${code}</span>
+    const owner=Q.friends.find(f=>f.team===code)
+    h+=`<button class="tc ${sel?'sel':''}" onclick="pChamp('${fr.id}','${code}')" style="padding:12px 4px">
+      <span class="tc-flag" style="font-size:28px">${t.f}</span>
+      <span class="tc-code">${code}</span>
+      <span style="font-size:8px;color:${sel?'rgba(0,0,0,.6)':'var(--muted)'};display:block;margin-top:1px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:100%">${esc(owner?.name.split(' ')[0]||'')}</span>
     </button>`
   })
   h+=`</div>`
@@ -751,7 +780,7 @@ function rQPredict(){
   h+=`<div class="scorer-box"><div class="section-hd" style="margin-top:0">Pichichi (Goleador)</div>
     <div class="scorer-grid">`
   SCORERS.forEach(nm=>{
-    h+=`<button class="sc-btn ${fr.topScorer===nm?'sel':''}" onclick="pScorer('${fr.id}','${esc(nm)}')">" +esc(nm)+"</button>`
+    h+=`<button class="sc-btn ${fr.topScorer===nm?'sel':''}" onclick="pScorer('${fr.id}','${esc(nm)}')">" + esc(nm) + "</button>`
   })
   h+=`</div></div>`
 
@@ -800,12 +829,16 @@ function rQPredict(){
 function qv(v){QV=v;document.getElementById('content').innerHTML=rQ();document.getElementById('content').scrollTop=0}
 function openP(fid){AF=fid;qv('predict')}
 function createQ(){
-  const names=SN.map(n=>n.trim()).filter(Boolean)
-  if(names.length<2){alert('Añade al menos 2 nombres');return}
-  Q={friends:names.map((n,i)=>({id:'f'+i,name:n,champion:'',topScorer:'',predictions:[]})),at:new Date().toISOString()}
+  const active=SN.map((n,i)=>({n:n.trim(),t:ST[i]})).filter(x=>x.n)
+  if(active.length<2){alert('Añade al menos 2 jugadores');return}
+  if(active.some(x=>!x.t)){alert('Cada jugador debe elegir su equipo');return}
+  if(new Set(active.map(x=>x.t)).size<active.length){alert('Cada jugador debe elegir un equipo diferente');return}
+  Q={friends:active.map((x,i)=>({id:'f'+i,name:x.n,team:x.t,champion:'',topScorer:'',predictions:[]})),at:new Date().toISOString()}
   saveQ();document.getElementById('q-pip').style.display='block';qv('lb')
 }
-function resetQ(){if(!confirm('¿Borrar toda la quiniela?'))return;try{localStorage.removeItem('mw26')}catch(e){};Q=null;SN=['','','','','','','',''];document.getElementById('q-pip').style.display='none';qv('menu')}
+function tsp(i){SPICK=SPICK===i?-1:i;document.getElementById('content').innerHTML=rQSetup();document.getElementById('content').scrollTop=0}
+function pts(i,code){ST[i]=ST[i]===code?'':code;SPICK=-1;document.getElementById('content').innerHTML=rQSetup()}
+function resetQ(){if(!confirm('¿Borrar toda la quiniela?'))return;try{localStorage.removeItem('mw26')}catch(e){};Q=null;SN=['','','','','','','',''];ST=['','','','','','','',''];SPICK=-1;document.getElementById('q-pip').style.display='none';qv('menu')}
 function pChamp(fid,code){
   const fr=Q.friends.find(f=>f.id===fid);if(!fr)return
   fr.champion=fr.champion===code?'':code;saveQ()
