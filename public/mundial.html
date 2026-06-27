@@ -17,11 +17,11 @@
   --blur:blur(18px);
 }
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
-html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display','Segoe UI',sans-serif;-webkit-font-smoothing:antialiased}
+html,body{background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display','Segoe UI',sans-serif;-webkit-font-smoothing:antialiased;height:100%}
 
 /* ── LAYOUT ── */
-#app{height:100%;display:flex;flex-direction:column;max-width:500px;margin:0 auto;position:relative}
-#content{flex:1;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+#app{position:fixed;top:0;left:0;right:0;bottom:0;display:flex;flex-direction:column;max-width:500px;margin:0 auto}
+#content{flex:1;min-height:0;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;scrollbar-width:none}
 #content::-webkit-scrollbar{display:none}
 .page{padding:24px 16px 110px;animation:fadeUp .28s cubic-bezier(.22,1,.36,1)}
 @keyframes fadeUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
@@ -269,6 +269,11 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);fon
 <body>
 <div id="app">
   <div id="content">
+    <div id="init-msg" style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;text-align:center;padding:40px 24px;gap:12px">
+      <div style="font-size:52px">⚽</div>
+      <div style="font-size:20px;font-weight:900;color:#F0F2F8">Mundial 2026</div>
+      <div style="font-size:13px;color:#5C6478">Cargando...</div>
+    </div>
     <noscript>
       <div style="min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:40px 24px;gap:16px">
         <div style="font-size:64px">⚽</div>
@@ -453,7 +458,7 @@ function calcPts(fr){
 }
 function fmtD(ds){return new Date(ds+'T12:00:00').toLocaleDateString('es-ES',{weekday:'long',day:'numeric',month:'long'})}
 function sdD(ds){const[,mm,dd]=ds.split('-');return`${dd}/${mm}`}
-function e(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')}
+function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')}
 
 // ═══════════════════════════════════════
 // NAVIGATION
@@ -655,7 +660,7 @@ function rQSetup(){
   SN.forEach((n,i)=>{
     h+=`<div class="si-row">
       <span class="si-num">${i+1}</span>
-      <input class="si-in" type="text" placeholder="Jugador ${i+1}" value="${e(n)}"
+      <input class="si-in" type="text" placeholder="Jugador ${i+1}" value="${esc(n)}"
         oninput="SN[${i}]=this.value" inputmode="text" autocomplete="off">
     </div>`
   })
@@ -677,7 +682,7 @@ function rQLB(){
     ord.forEach((f,i)=>{
       h+=`<div class="pod-item">
         <span style="font-size:22px">${em[i]}</span>
-        <span class="pod-name">${e(f.name.split(' ')[0])}</span>
+        <span class="pod-name">${esc(f.name.split(' ')[0])}</span>
         <div class="pod-bar ${cls[i]}" style="height:${hts[i]}"><span class="pod-pts">${f.pts}</span></div>
       </div>`
     })
@@ -689,8 +694,8 @@ function rQLB(){
     h+=`<div class="lb-row" onclick="openP('${f.id}')">
       <span class="lb-rank" style="color:${rk[i]||'var(--muted)'}">${i+1}</span>
       <div class="lb-info">
-        <div class="lb-name">${e(f.name)}</div>
-        <div class="lb-detail">${c?`Campeón: ${T[f.champion].f} ${e(c)}`:'Sin predicciones aún'}</div>
+        <div class="lb-name">${esc(f.name)}</div>
+        <div class="lb-detail">${c?`Campeón: ${T[f.champion].f} ${esc(c)}`:'Sin predicciones aún'}</div>
       </div>
       <div><div class="lb-pts">${f.pts}</div><div class="lb-ptslbl">pts</div></div>
       <svg class="lb-arr" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
@@ -713,7 +718,7 @@ function rQPredict(){
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>Atrás
     </button>
     <div class="pd-hd">
-      <div><div class="title">${e(fr.name)}</div><div class="subtitle">Toca para elegir</div></div>
+      <div><div class="title">${esc(fr.name)}</div><div class="subtitle">Toca para elegir</div></div>
       <div class="pd-pts-badge"><div class="pd-pts-lbl">Puntos</div><div class="pd-pts-val">${pts}</div></div>
     </div>`
 
@@ -729,7 +734,7 @@ function rQPredict(){
   h+=`</div>`
   if(fr.champion){
     h+=`<div class="champ-sel"><span style="font-size:28px">${T[fr.champion].f}</span>
-      <span style="font-size:13px;font-weight:700">${e(T[fr.champion].n)}</span>
+      <span style="font-size:13px;font-weight:700">${esc(T[fr.champion].n)}</span>
       <span style="margin-left:auto;font-size:18px">✓</span></div>`
   }
   h+=`</div>`
@@ -738,7 +743,7 @@ function rQPredict(){
   h+=`<div class="scorer-box"><div class="section-hd" style="margin-top:0">Pichichi (Goleador)</div>
     <div class="scorer-grid">`
   SCORERS.forEach(nm=>{
-    h+=`<button class="sc-btn ${fr.topScorer===nm?'sel':''}" onclick="pScorer('${fr.id}','${e(nm)}')">${e(nm)}</button>`
+    h+=`<button class="sc-btn ${fr.topScorer===nm?'sel':''}" onclick="pScorer('${fr.id}','${esc(nm)}')">${esc(nm)}</button>`
   })
   h+=`</div></div>`
 
@@ -825,9 +830,9 @@ function render(){
 
 // Swipe navigation
 let sx=0,sy=0
-document.addEventListener('touchstart',e=>{sx=e.touches[0].clientX;sy=e.touches[0].clientY},{passive:true})
-document.addEventListener('touchend',e=>{
-  const dx=e.changedTouches[0].clientX-sx,dy=e.changedTouches[0].clientY-sy
+document.addEventListener('touchstart',function(ev){sx=ev.touches[0].clientX;sy=ev.touches[0].clientY},{passive:true})
+document.addEventListener('touchend',function(ev){
+  const dx=ev.changedTouches[0].clientX-sx,dy=ev.changedTouches[0].clientY-sy
   if(Math.abs(dx)>60&&Math.abs(dx)>Math.abs(dy)*1.5){
     const tabs=['home','grupos','fixture','quiniela'],i=tabs.indexOf(TAB)
     if(dx<0&&i<tabs.length-1)go(tabs[i+1])
@@ -836,8 +841,16 @@ document.addEventListener('touchend',e=>{
 },{passive:true})
 
 // Init
-if(Q)document.getElementById('q-pip').style.display='block'
-render()
+function init(){
+  try{
+    if(Q)document.getElementById('q-pip').style.display='block'
+    render()
+  }catch(err){
+    document.getElementById('content').innerHTML=
+      '<div style="color:#F0F2F8;padding:40px 20px;text-align:center"><div style="font-size:40px">⚠️</div><div style="font-size:16px;font-weight:700;margin-top:12px">Error al cargar</div><div style="font-size:12px;color:#5C6478;margin-top:8px">'+err+'</div></div>'
+  }
+}
+if(document.readyState==='loading'){document.addEventListener('DOMContentLoaded',init)}else{init()}
 </script>
 </body>
 </html>
