@@ -268,6 +268,13 @@ html,body{background:var(--bg);color:var(--text);font-family:-apple-system,Blink
 </style>
 </head>
 <body>
+<script>
+window.onerror=function(msg,src,line,col,err){
+  var c=document.getElementById('content');
+  if(c)c.innerHTML='<div style="color:#F0F2F8;padding:30px 16px;font-family:monospace;font-size:12px"><b style="color:#FF0A2B;font-size:16px">ERROR</b><br><br>'+msg+'<br><br>Línea: '+line+'<br><br>'+err+'</div>';
+  return true;
+};
+</script>
 <div id="app">
   <div id="content">
     <div id="init-msg" style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;text-align:center;padding:40px 24px;gap:12px">
